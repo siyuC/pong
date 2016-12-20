@@ -92,7 +92,7 @@ def trainNetwork(s, readout, h_fc1,sess):
     # create a summary for our reward
     tf.scalar_summary("reward", tot_reward)
     summary_op = tf.merge_all_summaries()
-    
+
     # define the cost function
 
     a = tf.placeholder("float", [None, ACTIONS], name = 'a')
@@ -135,7 +135,7 @@ def trainNetwork(s, readout, h_fc1,sess):
 
     epsilon = INITIAL_EPSILON
     t = 0
-    
+    n_game = 0
 
     
 
@@ -172,9 +172,16 @@ def trainNetwork(s, readout, h_fc1,sess):
             ret, x_t = cv2.threshold(x_t,1,255,cv2.THRESH_BINARY)
             s_t = np.stack((x_t, x_t, x_t, x_t), axis = 2) # 80*80*4
             print tot_reward
-            tot_reward = 0
-            # writer.add_summary(summary, t)
+            if t > 1001:
+                summary = sess.run(summary_op, feed_dict = {
+                    y : y_batch,
+                    a : a_batch,
+                    s : s_j_batch})
+                # write log
+                writer.add_summary(summary, n_game)
 
+            n_game += 1
+            tot_reward = 0
         # store the transition in D
         D.append((s_t, a_t, r_t, s_t1, terminal))
         if len(D) > REPLAY_MEMORY:
@@ -203,11 +210,12 @@ def trainNetwork(s, readout, h_fc1,sess):
 
             # perform gradient step
             if t % 1 == 0:
-                train_step.run(feed_dict = {
+                sess.run(train_step, feed_dict = {
                     y : y_batch,
                     a : a_batch,
                     s : s_j_batch})
 
+            
 
         # update the old values
         s_t = s_t1
@@ -247,7 +255,7 @@ def playGame():
         
         # writer = tf.train.SummaryWriter('logs', graph=tf.get_default_graph())
         s, readout, h_fc1 = createNetwork()
-        trainNetwork(s, readout, h_fc1, network_params,sess)
+        trainNetwork(s, readout, h_fc1,sess)
 
 def main():
     playGame()
