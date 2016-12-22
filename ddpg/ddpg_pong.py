@@ -280,18 +280,15 @@ def train(sess, env, actor, critic, action_dim):
 
         # Added exploration noise
         a_pre = actor.predict(np.reshape(s,(1,80,80,1))) # [0.1,0.1,0.1,0.1,0.5,0.1]
-        ax = np.zeros(action_dim)
         if random.random() <= epsilon:
             a = random.randrange(action_dim)
-            ax[a] = 1
         else:
             a = np.argmax(a_pre)
-            ax[a] = 1
 
         s2, r, terminal, info = env.step(a)
         s2 = prepro(s2)
 
-        replay_buffer.add(s, np.reshape(ax, (actor.a_dim,)), r, \
+        replay_buffer.add(s, np.reshape(a_pre, (actor.a_dim,)), r, \
             terminal, s2)
 
         if epsilon > FINAL_EPSILON:
