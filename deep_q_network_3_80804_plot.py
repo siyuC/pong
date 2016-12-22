@@ -172,6 +172,7 @@ def trainNetwork(s, readout, h_fc1,sess):
             ret, x_t = cv2.threshold(x_t,1,255,cv2.THRESH_BINARY)
             s_t = np.stack((x_t, x_t, x_t, x_t), axis = 2) # 80*80*4
             print tot_reward
+
             if t > 1001:
                 summary = sess.run(summary_op, feed_dict = {
                     y : y_batch,
@@ -214,8 +215,6 @@ def trainNetwork(s, readout, h_fc1,sess):
                     y : y_batch,
                     a : a_batch,
                     s : s_j_batch})
-
-            
 
         # update the old values
         s_t = s_t1

@@ -236,7 +236,7 @@ def playGame():
         
         # writer = tf.train.SummaryWriter('logs', graph=tf.get_default_graph())
         s, readout, h_fc1 = createNetwork()
-        trainNetwork(s, readout, h_fc1, network_params,sess)
+        trainNetwork(s, readout, h_fc1, sess)
 
 def main():
     playGame()
